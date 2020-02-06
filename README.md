@@ -2,7 +2,7 @@
 Windows (7,8,10) GUI of the popular [youtube-dl](https://rg3.github.io/youtube-dl/) media downloader. [Supported sites](https://rg3.github.io/youtube-dl/supportedsites.html)
 
 ## Screenshot
-https://raw.githubusercontent.com/MrS0m30n3/youtube-dl-gui/gh-pages/images/ydlg_ui.gif
+(https://raw.githubusercontent.com/rogit/youtube-dl-win-gui/master/builds/screenshot.png)
 
 ## Download
 * [youtube-dl-win-gui.2020.06.02.zip] (https://github.com/rogit/youtube-dl-win-gui/raw/master/builds/youtube-dl-win-gui.2020.06.02.zip) 10.1 MiB
