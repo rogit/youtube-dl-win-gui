@@ -5,7 +5,7 @@ Windows (7,8,10) GUI of the popular [youtube-dl](https://rg3.github.io/youtube-d
 ![youtube-dl-win-gui main window](https://raw.githubusercontent.com/rogit/youtube-dl-win-gui/master/builds/screenshot.png)
 
 ## Download
-* [youtube-dl-win-gui.2020.06.02.zip] (https://github.com/rogit/youtube-dl-win-gui/raw/master/builds/youtube-dl-win-gui.2020.06.02.zip) 10.1 MiB
+[youtube-dl-win-gui.2020.06.02.zip](https://github.com/rogit/youtube-dl-win-gui/raw/master/builds/youtube-dl-win-gui.2020.06.02.zip) 10.1 MiB
 
 ## Installation
 
