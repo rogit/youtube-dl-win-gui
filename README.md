@@ -16,21 +16,21 @@ Windows (7,8,10) GUI of the popular [youtube-dl](https://rg3.github.io/youtube-d
 
 1. Modern web-browser set as default. Not Internet Explorer.
 
-2. youtube-dl.exe (https://ytdl-org.github.io/youtube-dl/download.html). 
+2. youtube-dl.exe (https://ytdl-org.github.io/youtube-dl/download.html).  
 .zip archive includes version 2020.01.24
 
-3. PHP (https://windows.php.net/download/).
+3. PHP (https://windows.php.net/download/).  
 .zip archive includes version 7.4.2
 
-4. windows-desktop-web-app (https://github.com/rogit/windows-desktop-web-app)
+4. windows-desktop-web-app (https://github.com/rogit/windows-desktop-web-app)  
 .zip archive includes it.
 
 5. FFmpeg (https://www.ffmpeg.org/download.html#build-windows). For creating mp3.
 
-6. Microsoft Visual C++ 2010 Redistributable Package (https://www.microsoft.com/en-US/download/details.aspx?id=5555)
-Required for youtube-dl. Install it if you see:
+6. Microsoft Visual C++ 2010 Redistributable Package (https://www.microsoft.com/en-US/download/details.aspx?id=5555)  
+Required for youtube-dl. Install it if you see:  
 ![MSVCR100dll.png](https://raw.githubusercontent.com/rogit/youtube-dl-win-gui/master/builds/MSVCR100dll.png)
 
-7. Microsoft Visual C++ Redistributable for Visual Studio 2015, 2017 and 2019 (https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads)
-Required for PHP. Install it if you see:
+7. Microsoft Visual C++ Redistributable for Visual Studio 2015, 2017 and 2019 (https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads)  
+Required for PHP. Install it if you see:  
 ![VCRUNTIME140dll.png](https://raw.githubusercontent.com/rogit/youtube-dl-win-gui/master/builds/VCRUNTIME140dll.png)
