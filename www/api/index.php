@@ -373,7 +373,7 @@ switch ( $_SERVER['PATH_INFO'] ) {
 	case "/updateYoutubeDl":
 		$OPTIONS = '" --update';
 		if ( $data['proxy'] !== '' ) $OPTIONS .= ' --proxy ' . $data['proxy'];
-		exec ( '"' . $data['youtubeDlExe'] . $OPTIONS );
+		exec ( '"' . $data['youtubeDlExe'] . "\\youtube-dl.exe" . $OPTIONS );
 	break;
 	
 	case "/dummy":
