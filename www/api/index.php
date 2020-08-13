@@ -1,5 +1,6 @@
 <?php
 
+declare ( strict_types = 1 );
 define ( 'STAGE_GET_TITLE', 'getTitle' );
 define ( 'STAGE_MAIN', 'main' );
 
@@ -14,16 +15,16 @@ function openDb () {
 	return new SQLite3 ( $datadir . 'data.db3' );
 }
 
-function getHTTPResponseCode ( $http_response_header ) {
+function getHTTPResponseCode ( array $http_response_header ): int {
 	foreach ( $http_response_header as $header ) {
 		if ( preg_match ( "/^http.* ([0-9]+)/i", $header, $matches )) {
 			return intval ( $matches[1] );
 		}
 	}
-	return false;
+	return -1;
 }
 
-function startJob ( $jobId, $jobCmd ) {
+function startJob ( string $jobId, string $jobCmd ): bool {
 	$options = array (
 		'http' => array (
 			'header' => "Content-type: application/x-www-form-urlencoded",
@@ -36,8 +37,8 @@ function startJob ( $jobId, $jobCmd ) {
 	return getHTTPResponseCode ( $http_response_header ) === 200;
 }
 
-function addTaskToDB ( $db, $link, $settings ) {
-	if ( linkExist ( $db, $link )) return true;
+function addTaskToDB ( $db, string $link, array $settings ) {
+	if ( linkExist ( $db, $link )) return;
 	$video = $settings['video'];
 	$youtubeDlExe = convertToLocale ( $settings['youtubeDlExe'] ) . "\\youtube-dl.exe";
 	$id = "i" . time () . mt_rand ( 100000, 999999 );
@@ -69,14 +70,14 @@ function deleteAllTasks ( $db ) {
 	$db->query ( "delete from output" );
 }
 
-function getTasks ( $db ) {
+function getTasks ( $db ): array {
 	$tasks = [];
 	$result = $db->query ( "select * from tasks order by addTime desc" );
 	while ( $row = $result->fetchArray ( SQLITE3_ASSOC )) $tasks[] = $row;
 	return $tasks;
 }
 
-function linkExist ( $db, $link ) {
+function linkExist ( $db, string $link ): bool {
 	$stmt = $db->prepare ( "select id from tasks where link = :link and finished = 0" );
 	$stmt->bindParam ( ':link', $link );
 	$result = $stmt->execute();
@@ -85,7 +86,7 @@ function linkExist ( $db, $link ) {
 	return $ret;
 }
 
-function getTask ($db, $id ) {
+function getTask ( $db, $id ): array {
 	$stmt = $db->prepare ( "select * from tasks where id = :id" );
 	$stmt->bindParam ( ':id', $id );
 	$result = $stmt->execute();
@@ -94,17 +95,17 @@ function getTask ($db, $id ) {
 	return $ret;
 }
 
-function extractDownloadSizeAndProgress ( $outText, $downloadProgress, $fileSize ) {
-	if ( preg_match ( "/^\\[download\\]\s+([0-9\\.]+)%\s+of\s+(\S+)($|\s+)/", $outText, $matches )) return array (  $matches[1], $matches[2] );
+function extractDownloadSizeAndProgress ( string $outText, float $downloadProgress, string $fileSize ): array {
+	if ( preg_match ( "/^\\[download\\]\s+([0-9.]+)%\s+of\s+(\S+)($|\s+)/", $outText, $matches )) return array (  $matches[1], $matches[2] );
 	else return array ( $downloadProgress, $fileSize );
 }
 
-function extractTitle ( $outText, $task ) {
+function extractTitle ( string $outText, array $task ): string {
 	if (( $task['stage'] == STAGE_GET_TITLE ) && ( $outText !== '' )) return $outText;
 	else return $task['title'];
 }
 
-function updateTask ( $db, $data, $task ) {
+function updateTask ( $db, array $data, array $task ) {
 	$downloadProgress = $task['downloadProgress'];
 	$fileSize = $task['fileSize'];
 	$title = $task['title'];
@@ -156,14 +157,14 @@ function updateTask ( $db, $data, $task ) {
 	$stmt->close ();
 }
 
-function getLog ( $db, $taskId ) {
+function getLog ( $db, string $taskId ): array {
 	$output = [];
 	$result = $db->query ( "select outText from output where taskId = '$taskId' order by id" );
 	while ( $row = $result->fetchArray ( SQLITE3_NUM )) $output[] = $row[0];
 	return $output;
 }
 
-function findYoutubeDlExe ( $dir ) {
+function findYoutubeDlExe ( string $dir ) {
 	$files = scandir ( $dir );
 	foreach ( $files as $file ) {
 		if ( $file == 'youtube-dl.exe' ) return "$dir";
@@ -225,7 +226,7 @@ function getSettings ( $db ) {
 	return $settings;
 }
 
-function saveSettings ( $db, $settings ) {
+function saveSettings ( $db, array $settings ) {
 	$stmt = $db->prepare ( "UPDATE settings set value = :value where name = 'youtubeDlExe'" );
 	$stmt->bindParam ( ':value', trim ( $settings['youtubeDlExe'] ));
 	$stmt->execute();
@@ -257,7 +258,7 @@ function saveSettings ( $db, $settings ) {
 	$stmt->close ();
 }
 
-function convertToLocale ( $text ) {
+function convertToLocale ( string $text ): string {
 	if ( preg_match ( "/\\D(\\d+)$/", setlocale ( LC_CTYPE, 0 ), $matches )) {
 		$cp = "cp" . $matches[1];
 		$ret = iconv ( 'utf-8', $cp, $text );
@@ -342,7 +343,7 @@ switch ( $_SERVER['PATH_INFO'] ) {
 	break;
 	
 	case "/deleteTask":
-		if ( getTask ( $db, $data['id'] === false )) die ();
+		if ( getTask ( $db, $data['id'] ) === false ) die ();
 		deleteTask ( $db, $data['id'] );
 	break;
 	
@@ -357,7 +358,7 @@ switch ( $_SERVER['PATH_INFO'] ) {
 	break;
 	
 	case "/getLog":
-		if ( getTask ( $db, $data['id'] === false )) die ();
+		if ( getTask ( $db, $data['id'] ) === false ) die ();
 		$ret['output'] = getLog ( $db, $data['id'] );
 	break;
 	
