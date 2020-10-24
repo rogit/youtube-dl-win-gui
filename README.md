@@ -1,5 +1,5 @@
 # youtube-dl-win-gui
-Windows (7,8,10) GUI of the popular [youtube-dl](https://rg3.github.io/youtube-dl/) media downloader. [Supported sites](https://rg3.github.io/youtube-dl/supportedsites.html)
+Windows (7,8,10) GUI of the popular [youtube-dl](https://youtube-dl.org/) media downloader.
 
 ## Screenshot
 ![youtube-dl-win-gui main window](https://raw.githubusercontent.com/rogit/youtube-dl-win-gui/master/builds/screenshot.png)
