@@ -5,7 +5,7 @@ Windows (7,8,10) GUI of the popular [youtube-dl](https://youtube-dl.org/) media 
 ![youtube-dl-win-gui main window](https://raw.githubusercontent.com/rogit/youtube-dl-win-gui/master/builds/screenshot.png)
 
 ## Download
-[youtube-dl-win-gui.2020.08.13.zip](https://github.com/rogit/youtube-dl-win-gui/raw/master/builds/youtube-dl-win-gui.2020.08.13.zip) 10.1 MiB
+[youtube-dl-win-gui.2020.11.05.zip](https://github.com/rogit/youtube-dl-win-gui/raw/master/builds/youtube-dl-win-gui.2020.11.05.zip) 10.1 MiB
 
 ## Installation
 
@@ -16,8 +16,8 @@ Windows (7,8,10) GUI of the popular [youtube-dl](https://youtube-dl.org/) media 
 
 1. Modern web-browser set as default. Not Internet Explorer.
 
-2. youtube-dl.exe (https://ytdl-org.github.io/youtube-dl/download.html).  
-.zip archive includes version 2020.03.24
+2. youtube-dl.exe (https://www.youtube-dl.org/).  
+.zip archive includes version 2020.09.20
 
 3. PHP (https://windows.php.net/download/).  
 .zip archive includes version 7.4.2

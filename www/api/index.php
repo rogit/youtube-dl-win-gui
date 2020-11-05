@@ -37,14 +37,20 @@ function startJob ( string $jobId, string $jobCmd ): bool {
 	return getHTTPResponseCode ( $http_response_header ) === 200;
 }
 
-function addTaskToDB ( $db, string $link, array $settings ) {
-	if ( linkExist ( $db, $link )) return;
-	$video = $settings['video'];
+function getJobCmd ( string $link, array $settings ): string {
 	$youtubeDlExe = convertToLocale ( $settings['youtubeDlExe'] ) . "\\youtube-dl.exe";
 	$id = "i" . time () . mt_rand ( 100000, 999999 );
 	$jobCmd = "$youtubeDlExe --encoding utf-8 --no-check-certificate --no-color";
 	if ( $settings['proxy'] !== '' ) $jobCmd .= ' --proxy ' . $settings['proxy'];
 	$jobCmd .= ' --get-title ' . $link;
+	return $jobCmd;
+}
+
+function addTaskToDB ( $db, string $link, array $settings ) {
+	if ( linkExist ( $db, $link )) return;
+	$video = $settings['video'];
+	$id = "i" . time () . mt_rand ( 100000, 999999 );
+	$jobCmd = getJobCmd ( $link, $settings );
 	$finished = $exitCode = 0;
 	if ( !startJob ( $id, $jobCmd )) {
 		$finished = $exitCode = 1;
@@ -63,6 +69,23 @@ function deleteTask ( $db, $id ) {
 	$stmt->bindParam ( ':id', $id );
 	$stmt->execute();
 	$stmt->close ();
+}
+
+function restartTask ( $db, $id ) {
+	$settings = getSettings ( $db );
+	$stmt = $db->prepare ( "select link from tasks where id = :id" );
+	$stmt->bindParam ( ':id', $id );
+	$result = $stmt->execute();
+	$ret = $result->fetchArray ( SQLITE3_ASSOC );
+	$stmt->close ();
+	$jobCmd = getJobCmd ( $ret['link'], $settings );
+	$finished = $exitCode = 0;
+	if ( !startJob ( $id, $jobCmd )) {
+		$finished = $exitCode = 1;
+	}
+	$stmt = $db->prepare ( "update tasks set started = 0, finished = $finished, exitCode = $exitCode, downloadProgress = 0, stage = '" . STAGE_GET_TITLE . "' where id = :id" );
+	$stmt->bindParam ( ':id', $id );
+	$stmt->execute();
 }
 
 function deleteAllTasks ( $db ) {
@@ -376,6 +399,12 @@ switch ( $_SERVER['PATH_INFO'] ) {
 		if ( $data['proxy'] !== '' ) $OPTIONS .= ' --proxy ' . $data['proxy'];
 		exec ( '"' . $data['youtubeDlExe'] . "\\youtube-dl.exe" . $OPTIONS );
 	break;
+
+	case "/restart":
+		if ( getTask ( $db, $data['id'] ) === false ) die ();
+		restartTask ( $db, $data['id'] );
+		$ret['tasks'] = getTasks ( $db );
+		break;
 	
 	case "/dummy":
 	break;

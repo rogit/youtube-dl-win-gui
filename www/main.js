@@ -155,6 +155,12 @@ new Vue ({
         })
       } else setTimeout ( vm.getTasks, 500 )
     },
+    restart: function ( id ) {
+        var vm = this;
+        ajax ( "/api/restart", { id: id } , function ( data ) {
+            vm.tasks = data.tasks
+        })
+    },
     showLog: function ( show, id ) {
       this.fShowMain = show
       this.fShowLog = !show

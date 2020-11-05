@@ -53,7 +53,7 @@
 			<th style="width: 24%">{{$t('link')}}</th>
 			<th style="width: 35%">{{$t('title')}}</th>
 			<th style="width: 10%">{{$t('downloaded')}}</th>
-			<th style="width: 5%">{{$t('videoSize')}}</th>
+			<th style="width: 5%">{{$t('size')}}</th>
 			<th style="width: 5%">{{$t('format')}}</th>
 			<th style="width: 5%">{{$t('added')}}</th>
 			<th style="width: 5%">{{$t('jobStatus')}}</th>
@@ -61,7 +61,10 @@
 		</tr>
 		<tr v-for="task in tasks" :key="task.id" :class="getClassName(task)">
 			<td><a :href="task.link" target="_blank">{{task.link}}</a></td>
-			<td>{{task.showTitle == 1 ? task.title : ''}}</td>
+			<td>
+				{{task.showTitle == 1 ? task.title : ''}}
+				<button @click=deleteTask(task) :title="$t('removeFromList')" class="button_primary" style="padding: 2px 8px 2px 8px; float: right">&times;</button>
+			</td>
 			<td style="padding: 0">
 				<div style="position: relative; border: 0; height: 100%">
 					<div class="progressBar" :style="{width: task.downloadProgress + '%'}"></div><div class="progressInfo">{{getDownloadProgress ( task )}}%</div>
@@ -72,7 +75,7 @@
 			<td>{{task.addTime | localDate( $i18n.locale )}}</td>
 			<td>{{getStatus ( task )}}</td>
 			<td>
-				<button @click=deleteTask(task) :title="$t('removeFromList')" class="button_primary" style="padding: 2px 8px 2px 8px">&times;</button>
+				<button @click="restart(task.id)" v-show="task.exitCode" :title="$t('restart')" class="button_primary" style="padding: 2px 8px 2px 8px">&#x27F3;</button>
 				<button @click="showLog(false,task.id)" v-show="!task.new" :title="$t('showLog')" class="button_primary" style="padding: 2px 8px 2px 8px">{{$t('log')}}</button>
 			</td>
 		</tr>
