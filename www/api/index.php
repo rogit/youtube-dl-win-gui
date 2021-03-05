@@ -9,10 +9,10 @@ function ret400 () {
 	die ();
 }
 
-function openDb () {
-	$datadir = dirname ( $_SERVER['SCRIPT_FILENAME'] ) . '\\..\\..\\data\\';
-	if ( !file_exists ( $datadir . 'data.db3' )) copy ( $datadir . '_data.db3', $datadir . 'data.db3' );
-	return new SQLite3 ( $datadir . 'data.db3' );
+function openDb (): object {
+	$dataDir = dirname ( $_SERVER['SCRIPT_FILENAME'] ) . '\\..\\..\\data\\';
+	if ( !file_exists ( $dataDir . 'data.db3' )) copy ( $dataDir . '_data.db3', $dataDir . 'data.db3' );
+	return new SQLite3 ( $dataDir . 'data.db3' );
 }
 
 function getHTTPResponseCode ( array $http_response_header ): int {
@@ -39,7 +39,6 @@ function startJob ( string $jobId, string $jobCmd ): bool {
 
 function getJobCmd ( string $link, array $settings ): string {
 	$youtubeDlExe = convertToLocale ( $settings['youtubeDlExe'] ) . "\\youtube-dl.exe";
-	$id = "i" . time () . mt_rand ( 100000, 999999 );
 	$jobCmd = "$youtubeDlExe --encoding utf-8 --no-check-certificate --no-color";
 	if ( $settings['proxy'] !== '' ) $jobCmd .= ' --proxy ' . $settings['proxy'];
 	$jobCmd .= ' --get-title ' . $link;
@@ -161,10 +160,11 @@ function updateTask ( $db, array $data, array $task ) {
 			if ( $settings['proxy'] !== '' ) $jobCmd .= ' --proxy ' . $settings['proxy'];
 			$targetFolder = convertToLocale ( $settings['targetFolder'] );
 			$jobCmd .= ' -v --newline';
+			$ffmpegHome = convertToLocale ( $settings['ffmpegHome'] );
 			if ( $task['video'] ) {
+				if ( $ffmpegHome ) $jobCmd .= ' --ffmpeg-location "' . $ffmpegHome. '" ';
 				$jobCmd .= ' -o "' . $targetFolder . '\%(title)s.%(ext)s" ' . $task['link'];
 			} else {
-				$ffmpegHome = convertToLocale ( $settings['ffmpegHome'] );
 				$jobCmd .= ' --extract-audio --audio-format mp3 --ffmpeg-location "' . $ffmpegHome . '" -o "' . $targetFolder . '\%(title)s.%(ext)s" ' . $task['link'];
 			}
 			if ( !startJob ( $task['id'], $jobCmd )) {
@@ -187,7 +187,7 @@ function getLog ( $db, string $taskId ): array {
 	return $output;
 }
 
-function findYoutubeDlExe ( string $dir ) {
+function findYoutubeDlExe ( string $dir ): bool|string {
 	$files = scandir ( $dir );
 	foreach ( $files as $file ) {
 		if ( $file == 'youtube-dl.exe' ) return "$dir";
@@ -201,7 +201,7 @@ function findYoutubeDlExe ( string $dir ) {
 	return false;
 }
 
-function getSettings ( $db ) {
+function getSettings ( $db ): array {
 	$settings = [];
 	$result = $db->query ( "select name, value from settings" );
 	while ( $row = $result->fetchArray ( SQLITE3_ASSOC )) $settings[$row['name']] = $row['value'];
@@ -251,32 +251,38 @@ function getSettings ( $db ) {
 
 function saveSettings ( $db, array $settings ) {
 	$stmt = $db->prepare ( "UPDATE settings set value = :value where name = 'youtubeDlExe'" );
-	$stmt->bindParam ( ':value', trim ( $settings['youtubeDlExe'] ));
+	$youtubeDlExe = trim ( $settings['youtubeDlExe'] );
+	$stmt->bindParam ( ':value', $youtubeDlExe );
 	$stmt->execute();
 	$stmt->close ();
-	
+
+	$targetFolder = trim ( $settings['targetFolder'] );
 	$stmt = $db->prepare ( "UPDATE settings set value = :value where name = 'targetFolder'" );
-	$stmt->bindParam ( ':value', trim ( $settings['targetFolder'] ));
+	$stmt->bindParam ( ':value', $targetFolder );
 	$stmt->execute();
 	$stmt->close ();
-	
+
+	$video = $settings['video'];
 	$stmt = $db->prepare ( "UPDATE settings set value = :value where name = 'video'" );
-	$stmt->bindParam ( ':value', $settings['video'] );
+	$stmt->bindParam ( ':value', $video );
 	$stmt->execute();
 	$stmt->close ();
-	
+
+	$ffmpegHome = trim ( $settings['ffmpegHome'] );
 	$stmt = $db->prepare ( "UPDATE settings set value = :value where name = 'ffmpegHome'" );
-	$stmt->bindParam ( ':value', trim ( $settings['ffmpegHome'] ));
+	$stmt->bindParam ( ':value', $ffmpegHome );
 	$stmt->execute();
 	$stmt->close ();
-	
+
+	$proxy = trim ( $settings['proxy'] );
 	$stmt = $db->prepare ( "UPDATE settings set value = :value where name = 'proxy'" );
-	$stmt->bindParam ( ':value', trim ( $settings['proxy'] ));
+	$stmt->bindParam ( ':value', $proxy );
 	$stmt->execute();
 	$stmt->close ();
-	
+
+	$locale = $settings['locale'];
 	$stmt = $db->prepare ( "UPDATE settings set value = :value where name = 'locale'" );
-	$stmt->bindParam ( ':value', $settings['locale'] );
+	$stmt->bindParam ( ':value', $locale );
 	$stmt->execute();
 	$stmt->close ();
 }
