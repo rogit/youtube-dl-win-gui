@@ -1,10 +1,10 @@
 <?php
 
 declare ( strict_types = 1 );
-define ( 'STAGE_GET_TITLE', 'getTitle' );
-define ( 'STAGE_MAIN', 'main' );
+const STAGE_GET_TITLE = 'getTitle';
+const STAGE_MAIN = 'main';
 
-function ret400 () {
+function ret400 (): never {
 	header ( "HTTP/1.1 400 Bad Request", true, 400 );
 	die ();
 }
@@ -17,7 +17,7 @@ function openDb (): object {
 
 function getHTTPResponseCode ( array $http_response_header ): int {
 	foreach ( $http_response_header as $header ) {
-		if ( preg_match ( "/^http.* ([0-9]+)/i", $header, $matches )) {
+		if ( preg_match ( "/^http.* (\d+)/i", $header, $matches )) {
 			return intval ( $matches[1] );
 		}
 	}
@@ -45,7 +45,7 @@ function getJobCmd ( string $link, array $settings ): string {
 	return $jobCmd;
 }
 
-function addTaskToDB ( $db, string $link, array $settings ) {
+function addTaskToDB ( $db, string $link, array $settings ): void {
 	if ( linkExist ( $db, $link )) return;
 	$video = $settings['video'];
 	$id = "i" . time () . mt_rand ( 100000, 999999 );
@@ -60,7 +60,7 @@ function addTaskToDB ( $db, string $link, array $settings ) {
 	$stmt->close ();
 }
 
-function deleteTask ( $db, $id ) {
+function deleteTask ( $db, $id ): void {
 	$stmt = $db->prepare ( "delete from tasks where id = :id" );
 	$stmt->bindParam ( ':id', $id );
 	$stmt->execute();
@@ -70,7 +70,7 @@ function deleteTask ( $db, $id ) {
 	$stmt->close ();
 }
 
-function restartTask ( $db, $id ) {
+function restartTask ( $db, $id ): void {
 	$settings = getSettings ( $db );
 	$stmt = $db->prepare ( "select link from tasks where id = :id" );
 	$stmt->bindParam ( ':id', $id );
@@ -87,7 +87,7 @@ function restartTask ( $db, $id ) {
 	$stmt->execute();
 }
 
-function deleteAllTasks ( $db ) {
+function deleteAllTasks ( $db ): void {
 	$db->query ( "delete from tasks" );
 	$db->query ( "delete from output" );
 }
@@ -118,7 +118,7 @@ function getTask ( $db, $id ): array {
 }
 
 function extractDownloadSizeAndProgress ( string $outText, float $downloadProgress, string $fileSize ): array {
-	if ( preg_match ( "/^\\[download\\]\s+([0-9.]+)%\s+of\s+(\S+)($|\s+)/", $outText, $matches )) return array (  $matches[1], $matches[2] );
+	if ( preg_match ( "/^\\[download\\]\s+([\d.]+)%\s+of\s+(\S+)($|\s+)/", $outText, $matches )) return array (  $matches[1], $matches[2] );
 	else return array ( $downloadProgress, $fileSize );
 }
 
@@ -127,7 +127,7 @@ function extractTitle ( string $outText, array $task ): string {
 	else return $task['title'];
 }
 
-function updateTask ( $db, array $data, array $task ) {
+function updateTask ( $db, array $data, array $task ): void {
 	$downloadProgress = $task['downloadProgress'];
 	$fileSize = $task['fileSize'];
 	$title = $task['title'];
@@ -249,7 +249,7 @@ function getSettings ( $db ): array {
 	return $settings;
 }
 
-function saveSettings ( $db, array $settings ) {
+function saveSettings ( $db, array $settings ): void {
 	$stmt = $db->prepare ( "UPDATE settings set value = :value where name = 'youtubeDlExe'" );
 	$youtubeDlExe = trim ( $settings['youtubeDlExe'] );
 	$stmt->bindParam ( ':value', $youtubeDlExe );
