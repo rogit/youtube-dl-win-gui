@@ -16,6 +16,4 @@ Windows (7,8,10) GUI of the popular [youtube-dl](https://youtube-dl.org/) media 
 
 ## Requirements
 
-1. Modern web-browser set as default. Not Internet Explorer.
-
-2. FFmpeg (https://www.ffmpeg.org/download.html#build-windows). For creating mp3.
+Modern web-browser set as default. (not Internet Explorer)
