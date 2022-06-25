@@ -187,18 +187,26 @@ function getLog ( $db, string $taskId ): array {
 	return $output;
 }
 
-function findYoutubeDlExe ( string $dir ): bool|string {
+function findFile ( string $dir, $name ): bool|string {
 	$files = scandir ( $dir );
 	foreach ( $files as $file ) {
-		if ( $file == 'youtube-dl.exe' ) return "$dir";
+		if ( $file == $name ) return "$dir";
 		if ( $file == '.' ) continue;
 		if ( $file == '..' ) continue;
 		if ( is_dir ( "$dir/$file" )) {
-			$path = findYoutubeDlExe ( "$dir/$file" );
+			$path = findFile ( "$dir/$file", $name );
 			if ( $path !== false ) return $path;
 		}
 	}
 	return false;
+}
+
+function findYoutubeDlExe ( string $dir ): bool|string {
+	return findFile ( $dir, 'youtube-dl.exe');
+}
+
+function findFFMPEGExe ( string $dir ): bool|string {
+	return findFile ( $dir, 'ffmpeg.exe');
 }
 
 function getSettings ( $db ): array {
@@ -229,10 +237,14 @@ function getSettings ( $db ): array {
 		$stmt->close ();
 	}
 	if ( !isset ( $settings['ffmpegHome'] )) {
-		$settings['ffmpegHome'] = '';
-		$stmt = $db->prepare ( "INSERT INTO settings ( name, value ) values ( 'ffmpegHome', '' )" );
-		$stmt->execute();
-		$stmt->close ();
+		$path = findFFMPEGExe ( getcwd() . "../../../" );
+		if ( $path !== false ) {
+			$settings['ffmpegHome'] = realpath ( $path );
+			$stmt = $db->prepare ( "INSERT INTO settings ( name, value ) values ( 'ffmpegHome', :value )" );
+			$stmt->bindParam ( ':value', $settings['ffmpegHome'] );
+			$stmt->execute();
+			$stmt->close ();
+		} else $settings['ffmpegHome'] = '';
 	}
 	if ( !isset ( $settings['proxy'] )) {
 		$settings['proxy'] = '';
@@ -415,9 +427,7 @@ switch ( $_SERVER['PATH_INFO'] ) {
 	case "/dummy":
 	break;
 	
-	default:
-		ret400 ();
-	break;
+	default: ret400 ();
 }
 $db->close();
 echo json_encode ( $ret, JSON_NUMERIC_CHECK );
