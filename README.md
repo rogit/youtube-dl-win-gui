@@ -2,7 +2,7 @@
 Windows (7,8,10) GUI of the popular [youtube-dl](https://youtube-dl.org/) media downloader.
 
 ## Screenshot
-![youtube-dl-win-gui main window](https://raw.githubusercontent.com/rogit/youtube-dl-win-gui/master/builds/screenshot.png)
+![youtube-dl-win-gui main window](https://raw.githubusercontent.com/rogit/youtube-dl-win-gui/screenshots/builds/screenshot.png)
 
 ## Installation
 
