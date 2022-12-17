@@ -108,7 +108,7 @@ function linkExist ( $db, string $link ): bool {
 	return $ret;
 }
 
-function getTask ( $db, $id ): array {
+function getTask ( $db, $id ): array | false {
 	$stmt = $db->prepare ( "select * from tasks where id = :id" );
 	$stmt->bindParam ( ':id', $id );
 	$result = $stmt->execute();
@@ -308,6 +308,7 @@ function convertToLocale ( string $text ): string {
 	} else return $text;
 }
 
+$data = []; // to hide notice
 header ( "Content-Type: text/html; charset=utf-8" );
 if ( $_SERVER['REQUEST_METHOD'] == 'POST' ) {
 #error_log ( print_r ( $_POST , 1 ));
