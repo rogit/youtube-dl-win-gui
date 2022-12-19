@@ -308,7 +308,6 @@ function convertToLocale ( string $text ): string {
 	} else return $text;
 }
 
-$data = []; // to hide notice
 header ( "Content-Type: text/html; charset=utf-8" );
 if ( $_SERVER['REQUEST_METHOD'] == 'POST' ) {
 #error_log ( print_r ( $_POST , 1 ));
