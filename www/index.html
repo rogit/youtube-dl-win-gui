@@ -29,8 +29,8 @@
 			</td>
 		</tr>
 		<tr v-show="showSettings">
-			<td>{{$t('pathToBinFolder')}} <a href="https://www.youtube-dl.org/" target="_blank">youtube-dl</a></td>
-			<td><input type=text v-model="settings.youtubeDlExe" size=90> {{youtubeDlVersionStr}} <img v-show="updatingYoutubeDl" style="height:20px;vertical-align:middle" src="/loading.gif"> <button :disabled="hasRunningJobs" class="button_primary" v-show="youtubeDlVersionStr != '' && !updatingYoutubeDl" @click="updateYoutubeDl">{{$t('update')}}</button></td>
+			<td>{{$t('pathToBinFolder')}} <a href="https://github.com/yt-dlp/yt-dlp" target="_blank">yt-dlp</a></td>
+			<td><input type=text v-model="settings[TOOL_FOLDER_SETTING_NAME]" size=90> {{toolVersionStr}} <img v-show="updatingTool" style="height:20px;vertical-align:middle" src="/loading.gif"> <button :disabled="hasRunningJobs" class="button_primary" v-show="toolVersionStr != '' && !updatingTool" @click="updateTool">{{$t('update')}}</button></td>
 		</tr>
 		<tr v-show="showSettings">
 			<td>{{$t('Proxy')}}</td><td><input type=text v-model="settings.proxy" size=90 placeholder="192.168.100.200:3128"></td>

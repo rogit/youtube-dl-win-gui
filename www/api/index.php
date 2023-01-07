@@ -3,6 +3,8 @@
 declare ( strict_types = 1 );
 const STAGE_GET_TITLE = 'getTitle';
 const STAGE_MAIN = 'main';
+const TOOL_EXE_FILENAME = 'yt-dlp_x86.exe';
+const TOOL_FOLDER_SETTING_NAME = 'yt-dlp_x86_folder';
 
 function ret400 (): never {
 	header ( "HTTP/1.1 400 Bad Request", true, 400 );
@@ -38,8 +40,8 @@ function startJob ( string $jobId, string $jobCmd ): bool {
 }
 
 function getJobCmd ( string $link, array $settings ): string {
-	$youtubeDlExe = convertToLocale ( $settings['youtubeDlExe'] ) . "\\youtube-dl.exe";
-	$jobCmd = "$youtubeDlExe --encoding utf-8 --no-check-certificate --no-color";
+	$toolFullPath = convertToLocale ( $settings[TOOL_FOLDER_SETTING_NAME] ) . "\\" . TOOL_EXE_FILENAME;
+	$jobCmd = "$toolFullPath --encoding utf-8 --no-check-certificate --no-color";
 	if ( $settings['proxy'] !== '' ) $jobCmd .= ' --proxy ' . $settings['proxy'];
 	$jobCmd .= ' --get-title ' . $link;
 	return $jobCmd;
@@ -118,7 +120,7 @@ function getTask ( $db, $id ): array | false {
 }
 
 function extractDownloadSizeAndProgress ( string $outText, float $downloadProgress, string $fileSize ): array {
-	if ( preg_match ( "/^\\[download\\]\s+([\d.]+)%\s+of\s+(\S+)($|\s+)/", $outText, $matches )) return array (  $matches[1], $matches[2] );
+	if ( preg_match ( "/^\\[download\\]\s+([\d.]+)%\s+of[~\s]+(\S+)($|\s+)/", $outText, $matches )) return array (  $matches[1], $matches[2] );
 	else return array ( $downloadProgress, $fileSize );
 }
 
@@ -155,8 +157,8 @@ function updateTask ( $db, array $data, array $task ): void {
 			$stage = STAGE_MAIN;
 			$showTitle = 1;
 			$settings = getSettings ( $db );
-			$youtubeDlExe = convertToLocale ( $settings['youtubeDlExe'] ) . "\\youtube-dl.exe";
-			$jobCmd = "$youtubeDlExe --encoding utf-8 --no-check-certificate --no-color";
+			$toolFullPath = convertToLocale ( $settings[TOOL_FOLDER_SETTING_NAME] ) . "\\" . TOOL_EXE_FILENAME;
+			$jobCmd = "$toolFullPath --encoding utf-8 --no-check-certificate --no-color";
 			if ( $settings['proxy'] !== '' ) $jobCmd .= ' --proxy ' . $settings['proxy'];
 			$targetFolder = convertToLocale ( $settings['targetFolder'] );
 			$jobCmd .= ' -v --newline';
@@ -202,7 +204,7 @@ function findFile ( string $dir, $name ): bool|string {
 }
 
 function findYoutubeDlExe ( string $dir ): bool|string {
-	return findFile ( $dir, 'youtube-dl.exe');
+	return findFile ( $dir, TOOL_EXE_FILENAME);
 }
 
 function findFFMPEGExe ( string $dir ): bool|string {
@@ -213,15 +215,15 @@ function getSettings ( $db ): array {
 	$settings = [];
 	$result = $db->query ( "select name, value from settings" );
 	while ( $row = $result->fetchArray ( SQLITE3_ASSOC )) $settings[$row['name']] = $row['value'];
-	if ( !isset ( $settings['youtubeDlExe'] )) {
+	if ( !isset ( $settings[TOOL_FOLDER_SETTING_NAME] )) {
 		$path = findYoutubeDlExe ( getcwd() . "../../../" );
 		if ( $path !== false ) {
-			$settings['youtubeDlExe'] = realpath ( $path );
-			$stmt = $db->prepare ( "INSERT INTO settings ( name, value ) values ( 'youtubeDlExe', :value )" );
-			$stmt->bindParam ( ':value', $settings['youtubeDlExe'] );
+			$settings[TOOL_FOLDER_SETTING_NAME] = realpath ( $path );
+			$stmt = $db->prepare ( "INSERT INTO settings ( name, value ) values ( '" . TOOL_FOLDER_SETTING_NAME . "', :value )" );
+			$stmt->bindParam ( ':value', $settings[TOOL_FOLDER_SETTING_NAME] );
 			$stmt->execute();
 			$stmt->close ();
-		} else $settings['youtubeDlExe'] = '';
+		} else $settings[TOOL_FOLDER_SETTING_NAME] = '';
 	}
 	if ( !isset ( $settings['targetFolder'] )) {
 		$settings['targetFolder'] = realpath (  "../../" );
@@ -262,9 +264,9 @@ function getSettings ( $db ): array {
 }
 
 function saveSettings ( $db, array $settings ): void {
-	$stmt = $db->prepare ( "UPDATE settings set value = :value where name = 'youtubeDlExe'" );
-	$youtubeDlExe = trim ( $settings['youtubeDlExe'] );
-	$stmt->bindParam ( ':value', $youtubeDlExe );
+	$stmt = $db->prepare ( "UPDATE settings set value = :value where name = '" . TOOL_FOLDER_SETTING_NAME . "'" );
+	$toolFolder = trim ( $settings[TOOL_FOLDER_SETTING_NAME] );
+	$stmt->bindParam ( ':value', $toolFolder );
 	$stmt->execute();
 	$stmt->close ();
 
@@ -330,16 +332,16 @@ switch ( $_SERVER['PATH_INFO'] ) {
 	case "/checkSaveSettings":
 		$ret['error'] = 0;
 		$ret['val'] = '';
-		if ( !file_exists ( $data['settings']['youtubeDlExe'] )) {
-			$ret['val'] = $data['settings']['youtubeDlExe'];
+		if ( !file_exists ( $data['settings'][TOOL_FOLDER_SETTING_NAME] )) {
+			$ret['val'] = $data['settings'][TOOL_FOLDER_SETTING_NAME];
 			$ret['error'] = 1;
 		} else {
-			if ( !is_dir ( $data['settings']['youtubeDlExe'] )) {
-				$ret['val'] = $data['settings']['youtubeDlExe'];
+			if ( !is_dir ( $data['settings'][TOOL_FOLDER_SETTING_NAME] )) {
+				$ret['val'] = $data['settings'][TOOL_FOLDER_SETTING_NAME];
 				$ret['error'] = 3;
 			} else {
-				if ( !is_executable ( $data['settings']['youtubeDlExe'] . "\\youtube-dl.exe" ) ) {
-					$ret['val'] = $data['settings']['youtubeDlExe'];
+				if ( !is_executable ( $data['settings'][TOOL_FOLDER_SETTING_NAME] . "\\" . TOOL_EXE_FILENAME ) ) {
+					$ret['val'] = $data['settings'][TOOL_FOLDER_SETTING_NAME];
 					$ret['error'] = 2;
 				}
 			}
@@ -403,19 +405,19 @@ switch ( $_SERVER['PATH_INFO'] ) {
 		$ret['output'] = getLog ( $db, $data['id'] );
 	break;
 	
-	case "/getYoutubeDlVersion":
+	case "/getToolVersion":
 		$ret['version'] = '';
-		$youtubeDlExe = convertToLocale ( $data['youtubeDlExe'] ) . "\\youtube-dl.exe";
-		if ( is_executable ( $youtubeDlExe )) {
-			exec ( "\"$youtubeDlExe\" --version", $out );
+		$toolFullPath = convertToLocale ( $data[TOOL_FOLDER_SETTING_NAME] ) . "\\" . TOOL_EXE_FILENAME;
+		if ( is_executable ( $toolFullPath )) {
+			exec ( "\"$toolFullPath\" --version", $out );
 			$ret['version'] = $out[0];
 		}
 	break;
 	
-	case "/updateYoutubeDl":
+	case "/updateTool":
 		$OPTIONS = '" --update';
 		if ( $data['proxy'] !== '' ) $OPTIONS .= ' --proxy ' . $data['proxy'];
-		exec ( '"' . $data['youtubeDlExe'] . "\\youtube-dl.exe" . $OPTIONS );
+		exec ( '"' . $data[TOOL_FOLDER_SETTING_NAME] . "\\" . TOOL_EXE_FILENAME . $OPTIONS );
 	break;
 
 	case "/restart":

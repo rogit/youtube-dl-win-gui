@@ -1,12 +1,13 @@
-var i18n = new VueI18n ( { locale: 'en-US', messages: messages })
+var i18n = new VueI18n ( { locale: 'en-US', messages: messages });
+const TOOL_FOLDER_SETTING_NAME = 'yt-dlp_x86_folder';
 
 new Vue ({
   i18n,
   el: '#app',
   data: function () {
     return {
-      youtubeDlVersion: '',
-      updatingYoutubeDl: false,
+      toolVersion: '',
+      updatingTool: false,
       showSettings: true,
       autoHideSettings: true,
       initComplete: false,
@@ -18,7 +19,7 @@ new Vue ({
       outHeight: 1,
       tasks: [],
       settings: {
-        youtubeDlExe: '',
+        [TOOL_FOLDER_SETTING_NAME]: '',
         targetFolder: '',
         video: 2,
         ffmpegHome: '',
@@ -34,8 +35,8 @@ new Vue ({
     btnSettingsStr: function () {
       return this.showSettings ? this.$t('btn.hideSettings') : this.$t('btn.showSettings')
     },
-    youtubeDlVersionStr: function () {
-      return this.youtubeDlVersion === '' ? '' : this.$t('version') + ' ' + this.youtubeDlVersion
+    toolVersionStr: function () {
+      return this.toolVersion === '' ? '' : this.$t('version') + ' ' + this.toolVersion
     },
     flagSrc: function () {
       return '/flags/' + this.settings.locale + '.jpg'
@@ -70,7 +71,7 @@ new Vue ({
           vm.focusField ( 'text' )
           vm.getServerStatus ()
           vm.getTasks ()
-          vm.getYoutubeDlVersion ()
+          vm.getToolVersion ()
         })
       })
     },
@@ -78,16 +79,16 @@ new Vue ({
       var vm = this
       vm.$nextTick ( function () { vm.$refs[ref].focus () })
     },
-    updateYoutubeDl: function () {
+    updateTool: function () {
       var vm = this
       this.saveSettingsCb ( function () {
-        vm.updatingYoutubeDl = true
+        vm.updatingTool = true
         document.getElementById('modal').style.display = 'block'
-        ajax ( "/api/updateYoutubeDl", vm.settings , function ( data ) {
-          vm.updatingYoutubeDl = false
+        ajax ( "/api/updateTool", vm.settings , function ( data ) {
+          vm.updatingTool = false
           document.getElementById('modal').style.display = 'none'
-          vm.youtubeDlVersion = ''
-          vm.getYoutubeDlVersion ()
+          vm.toolVersion = ''
+          vm.getToolVersion ()
         })
       })
     },
@@ -100,10 +101,10 @@ new Vue ({
         this.showSettings = val
       }
     },
-    getYoutubeDlVersion: function () {
+    getToolVersion: function () {
       var vm = this
-      ajax ( "/api/getYoutubeDlVersion", { youtubeDlExe: vm.settings.youtubeDlExe } , function ( data ) {
-        if ( data.version ) vm.youtubeDlVersion = data.version
+      ajax ( "/api/getToolVersion", { [TOOL_FOLDER_SETTING_NAME]: vm.settings[TOOL_FOLDER_SETTING_NAME] } , function ( data ) {
+        if ( data.version ) vm.toolVersion = data.version
       })
     },
     setLocale: function () {

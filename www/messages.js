@@ -28,7 +28,7 @@ var messages = {
     jobStatus: "status",
     actions: "actions",
     removeFromList: "remove from the list",
-    showLog: "show log youtube-dl.exe",
+    showLog: "show log",
     restart: "restart",
     log: "log",
     status: {
@@ -76,7 +76,7 @@ var messages = {
     jobStatus: "status",
     actions: "aktionen",
     removeFromList: "von der Liste entfernen",
-    showLog: "protokoll anzeigen youtube-dl.exe",
+    showLog: "protokoll anzeigen",
     restart: "neu starten",
     log: "protokoll",
     status: {
@@ -124,7 +124,7 @@ var messages = {
     jobStatus: "статус",
     actions: "действия",
     removeFromList: "удалить из списка",
-    showLog: "показать лог youtube-dl.exe",
+    showLog: "показать лог",
     restart: "перезапустить",
     log: "лог",
     status: {
