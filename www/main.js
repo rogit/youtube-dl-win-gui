@@ -22,6 +22,7 @@ new Vue ({
         [TOOL_FOLDER_SETTING_NAME]: '',
         targetFolder: '',
         video: 2,
+        videoResolution: -1,
         ffmpegHome: '',
         proxy: '',
         locale: 'en-US'
@@ -187,7 +188,6 @@ new Vue ({
           if ( typeof cb == 'function' ) cb ()
         }
       })
-  
     },
     saveSettings: function () {
       this.saveSettingsCb ()

@@ -120,8 +120,10 @@ function getTask ( $db, $id ): array | false {
 }
 
 function extractDownloadSizeAndProgress ( string $outText, float $downloadProgress, string $fileSize ): array {
-	if ( preg_match ( "/^\\[download\\]\s+([\d.]+)%\s+of[~\s]+(\S+)($|\s+)/", $outText, $matches )) return array (  $matches[1], $matches[2] );
-	else return array ( $downloadProgress, $fileSize );
+	if ( preg_match ( "/^\\[download\\]\s+([\d.]+)%\s+of[~\s]+(\S+)($|\s+)/", $outText, $matches )) {
+        if ($downloadProgress < $matches[1]) return array ( $matches[1], $matches[2] );
+    }
+	return array ( $downloadProgress, $fileSize );
 }
 
 function extractTitle ( string $outText, array $task ): string {
@@ -165,9 +167,12 @@ function updateTask ( $db, array $data, array $task ): void {
 			$ffmpegHome = convertToLocale ( $settings['ffmpegHome'] );
 			if ( $task['video'] ) {
 				if ( $ffmpegHome ) $jobCmd .= ' --ffmpeg-location "' . $ffmpegHome. '" ';
+				if ($settings['videoResolution'] !== '-1') {
+					$jobCmd .= ' -S "height:' . $settings['videoResolution'] . '"';
+				}
 				$jobCmd .= ' -o "' . $targetFolder . '\%(title)s.%(ext)s" ' . $task['link'];
 			} else {
-				$jobCmd .= ' --extract-audio --audio-format mp3 --ffmpeg-location "' . $ffmpegHome . '" -o "' . $targetFolder . '\%(title)s.%(ext)s" ' . $task['link'];
+				$jobCmd .= ' -S "height:480" --extract-audio --audio-format mp3 --ffmpeg-location "' . $ffmpegHome . '" -o "' . $targetFolder . '\%(title)s.%(ext)s" ' . $task['link'];
 			}
 			if ( !startJob ( $task['id'], $jobCmd )) {
 				$finished = $exitCode = 1;
@@ -238,6 +243,12 @@ function getSettings ( $db ): array {
 		$stmt->execute();
 		$stmt->close ();
 	}
+	if ( !isset ( $settings['videoResolution'] )) {
+        $settings['videoResolution'] = -1;
+		$stmt = $db->prepare ( "INSERT INTO settings ( name, value ) values ( 'videoResolution', -1 )" );
+		$stmt->execute();
+		$stmt->close ();
+	}
 	if ( !isset ( $settings['ffmpegHome'] )) {
 		$path = findFFMPEGExe ( getcwd() . "../../../" );
 		if ( $path !== false ) {
@@ -279,6 +290,12 @@ function saveSettings ( $db, array $settings ): void {
 	$video = $settings['video'];
 	$stmt = $db->prepare ( "UPDATE settings set value = :value where name = 'video'" );
 	$stmt->bindParam ( ':value', $video );
+	$stmt->execute();
+	$stmt->close ();
+
+    $videoResolution = $settings['videoResolution'];
+	$stmt = $db->prepare ( "UPDATE settings set value = :value where name = 'videoResolution'" );
+	$stmt->bindParam ( ':value', $videoResolution );
 	$stmt->execute();
 	$stmt->close ();
 
@@ -359,14 +376,12 @@ switch ( $_SERVER['PATH_INFO'] ) {
 				}
 			}
 		}
-		if ( !$data['settings']['video'] ) {
-			if ( $data['settings']['ffmpegHome'] === '' ) {
-				$ret['error'] = 4;
-			} else {
-				if ( !is_dir ( $data['settings']['ffmpegHome'] ) ) {
-					$ret['val'] = $data['settings']['ffmpegHome'];
-					$ret['error'] = 3;
-				}
+		if ( $data['settings']['ffmpegHome'] === '' ) {
+			$ret['error'] = 4;
+		} else {
+			if ( !is_dir ( $data['settings']['ffmpegHome'] ) ) {
+				$ret['val'] = $data['settings']['ffmpegHome'];
+				$ret['error'] = 3;
 			}
 		}
 		if ( !$ret['error'] ) saveSettings ( $db, $data['settings'] );

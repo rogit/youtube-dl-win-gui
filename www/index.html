@@ -33,6 +33,10 @@
 			<td><input type=text v-model="settings[TOOL_FOLDER_SETTING_NAME]" size=90> {{toolVersionStr}} <img v-show="updatingTool" style="height:20px;vertical-align:middle" src="/loading.gif"> <button :disabled="hasRunningJobs" class="button_primary" v-show="toolVersionStr != '' && !updatingTool" @click="updateTool">{{$t('update')}}</button></td>
 		</tr>
 		<tr v-show="showSettings">
+			<td>{{$t('pathToBinFolder')}} <a href="https://ffmpeg.org/download.html#build-windows" target="_blank">ffmpeg</a></td>
+			<td><input type=text v-model="settings.ffmpegHome" size=90 placeholder="C:\Temp\ffmpeg\bin"></td>
+		</tr>
+		<tr v-show="showSettings">
 			<td>{{$t('Proxy')}}</td><td><input type=text v-model="settings.proxy" size=90 placeholder="192.168.100.200:3128"></td>
 		</tr>
 		<tr>
@@ -42,7 +46,21 @@
 			<td>{{$t('Format')}}</td>
 			<td>
 				<div style="height: 40px">
-				<input type=radio v-model="settings.video" value="1"> {{$t('Video')}}<br><input type=radio v-model="settings.video" value="0"> {{$t('Audio')}} (mp3) <span v-show="settings.video == '0'">&nbsp; {{$t('pathToBinFolder')}} <a href="https://ffmpeg.org/download.html#build-windows" target="_blank">ffmpeg</a>: <input type=text v-model="settings.ffmpegHome" size=50 placeholder="C:\Temp\ffmpeg\bin"></span>
+				<input type=radio v-model="settings.video" value="1"> {{$t('Video')}}
+					<select v-model="settings.videoResolution" :disabled="settings.video == '0'">
+						<option value="-1">{{$t('defaultResolution')}}</option>
+						<option value="4320">4320 (8K)</option>
+						<option value="3384">3384 (6K)</option>
+						<option value="2160">2160 (4K)</option>
+						<option value="1440">1440 (QHD)</option>
+						<option value="1080">1080 (FHD)</option>
+						<option value="720">720 (HD)</option>
+						<option value="480">480</option>
+						<option value="360">360</option>
+						<option value="240">240</option>
+						<option value="144">144</option>
+					</select><br>
+				<input type=radio v-model="settings.video" value="0"> {{$t('Audio')}} (mp3)
 				</div>
 			</td>
 		</tr>

@@ -51,7 +51,7 @@ table.settings td {
 }
 table.settings td:first-child {
 	text-align: right;
-	width: 10%;
+	width: 12%;
 }
 tr.running td {
 	background-color: #92d8ff;

@@ -31,6 +31,7 @@ var messages = {
     showLog: "show log",
     restart: "restart",
     log: "log",
+    defaultResolution: "Default (best)",
     status: {
       Error: "Error",
       CreatingMp3: "Creating mp3",
@@ -79,6 +80,7 @@ var messages = {
     showLog: "protokoll anzeigen",
     restart: "neu starten",
     log: "protokoll",
+    defaultResolution: "Standard (beste)",
     status: {
       Error: "Fehler",
       CreatingMp3: "mp3 erstellen",
@@ -127,6 +129,7 @@ var messages = {
     showLog: "показать лог",
     restart: "перезапустить",
     log: "лог",
+    defaultResolution: "По умолчанию (наилучшее)",
     status: {
       Error: "Ошибка",
       CreatingMp3: "Создание mp3",
