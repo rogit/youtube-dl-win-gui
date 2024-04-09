@@ -1,0 +1,15 @@
+.idea
+/bin/ffmpeg.exe
+/bin/ffprobe.exe
+/bin/msvcr100.dll
+/bin/yt-dlp_x86.exe
+/config/settings.ini 
+/php/ext/php_sqlite3.dll
+/php/libsqlite3.dll
+/php/php.exe
+/php/php.ini
+/php/php8.dll
+/php/vcruntime140.dll
+/build.bat
+/data/data.db3
+/youtube-dl-win-gui.exe
