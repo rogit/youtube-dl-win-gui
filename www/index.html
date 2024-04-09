@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+	<meta charset="UTF-8">
+	<title>youtube-dl-win-gui</title>
+	<script type="text/javascript" src="/messages.js"></script>
+	<script type="text/javascript" src="/vue-i18n.js"></script>
+	<script type="text/javascript" src="/vue.min.js"></script>
+	<link href="/style.css" rel="stylesheet">
+</head>
+<body>
+<div id="app" style="display:none">
+	<div v-if="fShowMain && !fShowServerIsDown">
+	<textarea rows=5 cols=100 :placeholder="$t('ph_add_link_here')" v-model="text" ref="text"></textarea><br><br>
+	<button @click="addToQueue" :disabled="addButtonDisabled" class="button_add">{{$t('btn.add_video')}}</button> &nbsp;
+	<button @click="showHideSettings" class="button_primary">{{btnSettingsStr}}</button> &nbsp;
+	<button @click="removeFinishedTasks" :disabled="!hasFinishedJobs" class="button_primary">{{$t('btn.remove_finished')}}</button> &nbsp;
+	<button @click="removeAllTasks" :disabled="tasks.length == 0" class="button_primary">{{$t('btn.remove_all')}}</button> &nbsp;
+	<button @click="saveSettings" class="button_primary">{{$t('btn.saveSettings')}}</button>
+	<br><br>
+	<table class="settings">
+		<tr v-show="showSettings">
+			<td>{{$t("language")}}</td>
+			<td>
+				<img :src="flagSrc" style="vertical-align:middle"/> &nbsp;
+				<select v-model="settings.locale" @change="setLocale">
+					<option v-for="locale in locales" :value="locale.locale">{{ locale.desc }}</option>
+				</select>
+			</td>
+		</tr>
+		<tr v-show="showSettings">
+			<td>{{$t('pathToBinFolder')}} <a href="https://github.com/yt-dlp/yt-dlp" target="_blank">yt-dlp</a></td>
+			<td><input type=text v-model="settings[TOOL_FOLDER_SETTING_NAME]" size=90> {{toolVersionStr}} <img v-show="updatingTool" style="height:20px;vertical-align:middle" src="/loading.gif"> <button :disabled="hasRunningJobs" class="button_primary" v-show="toolVersionStr != '' && !updatingTool" @click="updateTool">{{$t('update')}}</button></td>
+		</tr>
+		<tr v-show="showSettings">
+			<td>{{$t('pathToBinFolder')}} <a href="https://ffmpeg.org/download.html#build-windows" target="_blank">ffmpeg</a></td>
+			<td><input type=text v-model="settings.ffmpegHome" size=90 placeholder="C:\Temp\ffmpeg\bin"></td>
+		</tr>
+		<tr v-show="showSettings">
+			<td>{{$t('Proxy')}}</td><td><input type=text v-model="settings.proxy" size=90 placeholder="192.168.100.200:3128"></td>
+		</tr>
+		<tr>
+			<td>{{$t('targetFolder')}}</td><td><input type=text v-model="settings.targetFolder" size=90> <button @click="openTargetFolder" class="button_primary">{{$t('open')}}</button></td>
+		</tr>
+		<tr>
+			<td>{{$t('Format')}}</td>
+			<td>
+				<div style="height: 40px">
+				<input type=radio v-model="settings.video" value="1"> {{$t('Video')}}
+					<select v-model="settings.videoResolution" :disabled="settings.video == '0'">
+						<option value="-1">{{$t('defaultResolution')}}</option>
+						<option value="4320">4320 (8K)</option>
+						<option value="3384">3384 (6K)</option>
+						<option value="2160">2160 (4K)</option>
+						<option value="1440">1440 (QHD)</option>
+						<option value="1080">1080 (FHD)</option>
+						<option value="720">720 (HD)</option>
+						<option value="480">480</option>
+						<option value="360">360</option>
+						<option value="240">240</option>
+						<option value="144">144</option>
+					</select><br>
+				<input type=radio v-model="settings.video" value="0"> {{$t('Audio')}} (mp3)
+				</div>
+			</td>
+		</tr>
+	</table>
+	<br><br>
+	<table v-show="tasks.length">
+		<tr>
+			<th style="width: 24%">{{$t('link')}}</th>
+			<th style="width: 35%">{{$t('title')}}</th>
+			<th style="width: 10%">{{$t('downloaded')}}</th>
+			<th style="width: 5%">{{$t('size')}}</th>
+			<th style="width: 5%">{{$t('format')}}</th>
+			<th style="width: 5%">{{$t('added')}}</th>
+			<th style="width: 5%">{{$t('jobStatus')}}</th>
+			<th style="width: 10%">{{$t('actions')}}</th>
+		</tr>
+		<tr v-for="task in tasks" :key="task.id" :class="getClassName(task)">
+			<td><a :href="task.link" target="_blank">{{task.link}}</a></td>
+			<td>
+				{{task.showTitle == 1 ? task.title : ''}}
+				<button @click=deleteTask(task) :title="$t('removeFromList')" class="button_primary" style="padding: 2px 8px 2px 8px; float: right">&times;</button>
+			</td>
+			<td style="padding: 0">
+				<div style="position: relative; border: 0; height: 100%">
+					<div class="progressBar" :style="{width: task.downloadProgress + '%'}"></div><div class="progressInfo">{{getDownloadProgress ( task )}}%</div>
+				</div>
+			</td>
+			<td>{{task.fileSize}}</td>
+			<td>{{task.video ? $t('Video') :  $t('Audio') }}</a></td>
+			<td>{{task.addTime | localDate( $i18n.locale )}}</td>
+			<td>{{getStatus ( task )}}</td>
+			<td>
+				<button @click="restart(task.id)" v-show="task.exitCode" :title="$t('restart')" class="button_primary" style="padding: 2px 8px 2px 8px">&#x27F3;</button>
+				<button @click="showLog(false,task.id)" v-show="!task.new" :title="$t('showLog')" class="button_primary" style="padding: 2px 8px 2px 8px">{{$t('log')}}</button>
+			</td>
+		</tr>
+	</table>
+	</div>
+	<div v-if="fShowLog && !fShowServerIsDown">
+		<button @click="showLog(true,0)" class="button_primary">{{$t('btn.back')}}</button>
+		<textarea :rows="outHeight" v-model="output" ref="log"></textarea>
+		<button @click="showLog(true,0)" class="button_primary">{{$t('btn.back')}}</button>
+	</div>
+	<div v-if="fShowServerIsDown" style="width:100%;text-align:center">
+		{{$t('serverisDown')}}
+	</div>
+</div>
+<div id="modal"></div>
+</body>
+</html>
+<script type="text/javascript" src="/main.js"></script>
