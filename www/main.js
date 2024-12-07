@@ -25,6 +25,7 @@ new Vue ({
         videoResolution: -1,
         ffmpegHome: '',
         proxy: '',
+        ytDlpOptions: '',
         locale: 'en-US'
       }
     }

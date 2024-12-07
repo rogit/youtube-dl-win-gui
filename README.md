@@ -14,3 +14,5 @@ Note: Some [anti-viruses complain about this file](https://www.virustotal.com/gu
 ## Requirements
 
 Modern web-browser set as default (it is not Internet Explorer).
+
+It's more convenient to use Firefox because of YouTube's cookie issues.

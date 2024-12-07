@@ -5,6 +5,7 @@ const STAGE_GET_TITLE = 'getTitle';
 const STAGE_MAIN = 'main';
 const TOOL_EXE_FILENAME = 'yt-dlp_x86.exe';
 const TOOL_FOLDER_SETTING_NAME = 'yt-dlp_x86_folder';
+const TOOL_OPTIONS_SETTING_NAME = 'ytDlpOptions';
 
 function ret400 (): never {
 	header ( "HTTP/1.1 400 Bad Request", true, 400 );
@@ -39,10 +40,16 @@ function startJob ( string $jobId, string $jobCmd ): bool {
 	return getHTTPResponseCode ( $http_response_header ) === 200;
 }
 
-function getJobCmd ( string $link, array $settings ): string {
-	$toolFullPath = convertToLocale ( $settings[TOOL_FOLDER_SETTING_NAME] ) . "\\" . TOOL_EXE_FILENAME;
+function getBaseCmd(array $settings): string {
+	$toolFullPath = convertToLocale($settings[TOOL_FOLDER_SETTING_NAME]) . "\\" . TOOL_EXE_FILENAME;
 	$jobCmd = "$toolFullPath --encoding utf-8 --no-check-certificate --no-color";
-	if ( $settings['proxy'] !== '' ) $jobCmd .= ' --proxy ' . $settings['proxy'];
+	if ($settings['proxy'] !== '') $jobCmd .= ' --proxy ' . $settings['proxy'];
+	if ($settings[TOOL_OPTIONS_SETTING_NAME] !== '') $jobCmd .= ' ' . $settings[TOOL_OPTIONS_SETTING_NAME];
+	return $jobCmd;
+}
+
+function getJobCmd ( string $link, array $settings ): string {
+	$jobCmd = getBaseCmd($settings);
 	$jobCmd .= ' --get-title ' . $link;
 	return $jobCmd;
 }
@@ -159,9 +166,7 @@ function updateTask ( $db, array $data, array $task ): void {
 			$stage = STAGE_MAIN;
 			$showTitle = 1;
 			$settings = getSettings ( $db );
-			$toolFullPath = convertToLocale ( $settings[TOOL_FOLDER_SETTING_NAME] ) . "\\" . TOOL_EXE_FILENAME;
-			$jobCmd = "$toolFullPath --encoding utf-8 --no-check-certificate --no-color";
-			if ( $settings['proxy'] !== '' ) $jobCmd .= ' --proxy ' . $settings['proxy'];
+			$jobCmd = getBaseCmd($settings);
 			$targetFolder = convertToLocale ( $settings['targetFolder'] );
 			$jobCmd .= ' -v --newline';
 			$ffmpegHome = convertToLocale ( $settings['ffmpegHome'] );
@@ -265,6 +270,12 @@ function getSettings ( $db ): array {
 		$stmt->execute();
 		$stmt->close ();
 	}
+	if ( !isset ( $settings[TOOL_OPTIONS_SETTING_NAME] )) {
+		$settings[TOOL_OPTIONS_SETTING_NAME] = '';
+		$stmt = $db->prepare ( "INSERT INTO settings ( name, value ) values ( '" . TOOL_OPTIONS_SETTING_NAME . "', '' )" );
+		$stmt->execute();
+		$stmt->close ();
+	}
 	if ( !isset ( $settings['locale'] )) {
 		$settings['locale'] = 'en-US';
 		$stmt = $db->prepare ( "INSERT INTO settings ( name, value ) values ( 'locale', 'en-US' )" );
@@ -308,6 +319,12 @@ function saveSettings ( $db, array $settings ): void {
 	$proxy = trim ( $settings['proxy'] );
 	$stmt = $db->prepare ( "UPDATE settings set value = :value where name = 'proxy'" );
 	$stmt->bindParam ( ':value', $proxy );
+	$stmt->execute();
+	$stmt->close ();
+
+	$ytDlpOptions = trim ( $settings[TOOL_OPTIONS_SETTING_NAME] );
+	$stmt = $db->prepare ( "UPDATE settings set value = :value where name = '" . TOOL_OPTIONS_SETTING_NAME . "'" );
+	$stmt->bindParam ( ':value', $ytDlpOptions );
 	$stmt->execute();
 	$stmt->close ();
 

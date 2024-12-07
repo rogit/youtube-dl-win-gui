@@ -39,6 +39,9 @@
 		<tr v-show="showSettings">
 			<td>{{$t('Proxy')}}</td><td><input type=text v-model="settings.proxy" size=90 placeholder="192.168.100.200:3128"></td>
 		</tr>
+		<tr v-show="showSettings">
+			<td>{{$t('ytDlpOptions')}}</td><td><input type=text v-model="settings.ytDlpOptions" size=90 placeholder="--cookies-from-browser firefox"></td>
+		</tr>
 		<tr>
 			<td>{{$t('targetFolder')}}</td><td><input type=text v-model="settings.targetFolder" size=90> <button @click="openTargetFolder" class="button_primary">{{$t('open')}}</button></td>
 		</tr>
