@@ -175,9 +175,9 @@ function updateTask ( $db, array $data, array $task ): void {
 				if ($settings['videoResolution'] !== '-1') {
 					$jobCmd .= ' -S "height:' . $settings['videoResolution'] . '"';
 				}
-				$jobCmd .= ' -o "' . $targetFolder . '\%(title)s.%(ext)s" ' . $task['link'];
+				$jobCmd .= ' -o "' . $targetFolder . '\%(upload_date>%Y-%m-%d)s %(title)s.%(ext)s" ' . $task['link'];
 			} else {
-				$jobCmd .= ' -S "height:480" --extract-audio --audio-format mp3 --ffmpeg-location "' . $ffmpegHome . '" -o "' . $targetFolder . '\%(title)s.%(ext)s" ' . $task['link'];
+				$jobCmd .= ' -S "height:480" --extract-audio --audio-format mp3 --ffmpeg-location "' . $ffmpegHome . '" -o "' . $targetFolder . '\%(upload_date>%Y-%m-%d)s %(title)s.%(ext)s" ' . $task['link'];
 			}
 			if ( !startJob ( $task['id'], $jobCmd )) {
 				$finished = $exitCode = 1;
