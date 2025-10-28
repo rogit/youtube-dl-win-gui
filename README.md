@@ -1,5 +1,5 @@
 # youtube-dl-win-gui
-Windows (7,8,10) GUI of the [yt-dlp](https://github.com/yt-dlp/yt-dlp/) media downloader.
+Windows (7,8,10,11) GUI of the [yt-dlp](https://github.com/yt-dlp/yt-dlp/) media downloader.
 
 ## Screenshot
 ![youtube-dl-win-gui main window](https://raw.githubusercontent.com/rogit/youtube-dl-win-gui/screenshots/builds/screenshot.png)
