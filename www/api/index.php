@@ -128,8 +128,8 @@ function getTask ( $db, $id ): array | false {
 
 function extractDownloadSizeAndProgress ( string $outText, float $downloadProgress, string $fileSize ): array {
 	if ( preg_match ( "/^\\[download\\]\s+([\d.]+)%\s+of[~\s]+(\S+)($|\s+)/", $outText, $matches )) {
-        if ($downloadProgress < $matches[1]) return array ( $matches[1], $matches[2] );
-    }
+		return array ( $matches[1], $matches[2] );
+	}
 	return array ( $downloadProgress, $fileSize );
 }
 
