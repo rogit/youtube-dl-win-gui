@@ -13,6 +13,11 @@ Note: Some [anti-viruses complain about this file](https://www.virustotal.com/gu
 
 ## Requirements
 
-Modern web-browser set as default (it is not Internet Explorer).
+* It's more convenient to use Firefox because of YouTube's cookie issues.
 
-It's more convenient to use Firefox because of YouTube's cookie issues.
+    Option `--cookies-from-browser firefox`
+
+
+* Read [https://github.com/yt-dlp/yt-dlp/wiki/EJS](https://github.com/yt-dlp/yt-dlp/wiki/EJS). JS runtime is not included to archive. 
+
+    Option `--js-runtimes node`
